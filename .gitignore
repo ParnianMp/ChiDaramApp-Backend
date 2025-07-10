@@ -1,0 +1,63 @@
+        # Maven
+        /target/
+        pom.xml.tag
+        pom.xml.versionsBackup
+        pom.xml.next
+        release.properties
+        dependency-reduced-pom.xml
+        buildNumber.properties
+        .mvn/timing.properties
+        .mvn/wrapper/maven-wrapper.jar
+
+        # Eclipse
+        .classpath
+        .project
+        .settings/
+        bin/
+
+        # IntelliJ IDEA
+        .idea/
+        *.iml
+        *.ipr
+        *.iws
+
+        # VS Code
+        .vscode/
+
+        # Spring Boot
+        /src/main/resources/static/build/
+        /src/main/resources/static/dist/
+        /src/main/resources/public/build/
+        /src/main/resources/public/dist/
+        *.log
+        logs/
+        tmp/
+        .env
+        .env.*
+        uploads/
+
+        # OS and other files
+        .DS_Store
+        Thumbs.db
+        *.swp
+        *~
+        .localized
+
+        # Specific Windows user profile directories that might get picked up accidentally
+        # These should NOT be inside your project folder, but for safety:
+        Application Data/
+        Cookies/
+        Local Settings/
+        My Documents/
+        NetHood/
+        PrintHood/
+        Recent/
+        SendTo/
+        Start Menu/
+        Templates/
+        # Also general AppData folders:
+        AppData/
+        C:/Users/*/AppData/
+        /Users/*/AppData/
+        *.jtx
+        
