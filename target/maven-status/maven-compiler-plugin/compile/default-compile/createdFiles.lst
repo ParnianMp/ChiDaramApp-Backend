@@ -1,7 +1,9 @@
+com\example\chi_daram\dto\OtpRequest.class
 com\example\chi_daram\controller\Categorylevel1Controller.class
 com\example\chi_daram\service\IncreasedocumentrowService.class
 com\example\chi_daram\service\UserService.class
 com\example\chi_daram\service\ItemStatusService.class
+com\example\chi_daram\service\impl\OtpServiceImpl.class
 com\example\chi_daram\service\impl\IncreasedocumenttypeServiceImpl.class
 com\example\chi_daram\dto\Categorylevel2DTO.class
 com\example\chi_daram\dto\LoginRequest.class
@@ -40,6 +42,7 @@ com\example\chi_daram\repository\IncreasedocumenttypeRepository.class
 com\example\chi_daram\entity\Categorylevel2.class
 com\example\chi_daram\repository\DynamicfieldsRepository.class
 com\example\chi_daram\config\DatabaseConfig.class
+com\example\chi_daram\service\SmsIrSmsService.class
 com\example\chi_daram\dto\DecreasedocumentrowDTO.class
 com\example\chi_daram\entity\Item.class
 com\example\chi_daram\dto\DynamicfieldsDTO.class
@@ -59,6 +62,7 @@ com\example\chi_daram\mapper\UserMapper.class
 com\example\chi_daram\service\ItemService.class
 com\example\chi_daram\controller\AuthController.class
 com\example\chi_daram\entity\Increasedocumentrow.class
+com\example\chi_daram\dto\OtpVerificationRequest.class
 com\example\chi_daram\dto\UserDTO.class
 com\example\chi_daram\mapper\IncreasedocumentrowMapper.class
 com\example\chi_daram\exception\ErrorDetails.class
@@ -68,12 +72,14 @@ com\example\chi_daram\security\CustomUserDetailsService.class
 com\example\chi_daram\service\DecreasedocumenttypeService.class
 com\example\chi_daram\entity\Increasedocument.class
 com\example\chi_daram\mapper\ItemMapper.class
+com\example\chi_daram\dto\OtpResponse.class
 com\example\chi_daram\exception\UserAlreadyExistsException.class
 com\example\chi_daram\ChiDaramAppApplication.class
 com\example\chi_daram\dto\DecreasedocumenttypeDTO.class
 com\example\chi_daram\controller\Categorylevel2Controller.class
 com\example\chi_daram\controller\IncreasedocumentController.class
 com\example\chi_daram\dto\JwtResponse.class
+com\example\chi_daram\config\RestTemplateConfig.class
 com\example\chi_daram\service\impl\ItemServiceImpl.class
 com\example\chi_daram\controller\UserController.class
 com\example\chi_daram\controller\ItemController.class
@@ -86,6 +92,7 @@ com\example\chi_daram\entity\Decreasedocumenttype.class
 com\example\chi_daram\repository\Categorylevel1Repository.class
 com\example\chi_daram\service\impl\IncreasedocumentrowServiceImpl.class
 com\example\chi_daram\service\impl\UserServiceImpl.class
+com\example\chi_daram\service\OtpService.class
 com\example\chi_daram\repository\ItemRepository.class
 com\example\chi_daram\service\impl\DecreasedocumenttypeServiceImpl.class
 com\example\chi_daram\service\IncreasedocumentService.class

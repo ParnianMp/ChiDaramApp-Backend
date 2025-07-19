@@ -1,1 +1,3 @@
 com\example\chi_daram\ChiDaramAppApplicationTests.class
+com\example\chi_daram\service\UserServiceTest.class
+com\example\chi_daram\controller\UserControllerIntegrationTest.class

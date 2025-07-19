@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
-import java.util.HashSet; // اضافه شد
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set; // اضافه شد
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service("userServiceImpl")
@@ -35,13 +35,19 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findByUsername(registerDTO.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException("Username '" + registerDTO.getUsername() + "' already exists.");
         }
+        // Check for duplicate phone number if provided
+        if (registerDTO.getPhoneNumber() != null && !registerDTO.getPhoneNumber().trim().isEmpty() &&
+            userRepository.findByPhoneNumber(registerDTO.getPhoneNumber()).isPresent()) {
+            throw new UserAlreadyExistsException("Phone number '" + registerDTO.getPhoneNumber() + "' already registered.");
+        }
 
         User user = new User();
         user.setUsername(registerDTO.getUsername());
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
         user.setTitle(registerDTO.getTitle());
         user.setDescription(registerDTO.getDescription());
-        user.setRoles(Collections.singleton("USER")); // نقش پیش فرض
+        user.setPhoneNumber(registerDTO.getPhoneNumber()); // Set phone number
+        user.setRoles(Collections.singleton("USER")); // Default role
 
         User savedUser = userRepository.save(user);
         return convertToDto(savedUser);
@@ -61,6 +67,13 @@ public class UserServiceImpl implements UserService {
             userRepository.findByUsername(updateDTO.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException("Another user with username '" + updateDTO.getUsername() + "' already exists.");
         }
+        // Check for duplicate phone number if changed
+        if (updateDTO.getPhoneNumber() != null && !updateDTO.getPhoneNumber().trim().isEmpty() &&
+            !updateDTO.getPhoneNumber().equals(existingUser.getPhoneNumber()) &&
+            userRepository.findByPhoneNumber(updateDTO.getPhoneNumber()).isPresent()) {
+            throw new UserAlreadyExistsException("Phone number '" + updateDTO.getPhoneNumber() + "' already registered.");
+        }
+
 
         existingUser.setUsername(updateDTO.getUsername());
         if (updateDTO.getPassword() != null && !updateDTO.getPassword().trim().isEmpty()) {
@@ -68,6 +81,7 @@ public class UserServiceImpl implements UserService {
         }
         existingUser.setTitle(updateDTO.getTitle());
         existingUser.setDescription(updateDTO.getDescription());
+        existingUser.setPhoneNumber(updateDTO.getPhoneNumber()); // Set phone number
 
         User updatedUser = userRepository.save(existingUser);
         return convertToDto(updatedUser);
@@ -113,13 +127,13 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserResponseDTO convertToDto(User user) {
-        Set<String> rolesSet = user.getRoles() != null ? user.getRoles() : new HashSet<>(); // تغییر به Set<String>
+        Set<String> rolesSet = user.getRoles() != null ? user.getRoles() : new HashSet<>();
         return new UserResponseDTO(
                 user.getId(),
                 user.getUsername(),
                 user.getTitle(),
                 user.getDescription(),
-                rolesSet, // حالا Set<String> را پاس می‌دهیم
+                rolesSet,
                 user.isEnabled()
         );
     }

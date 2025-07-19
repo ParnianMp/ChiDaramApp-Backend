@@ -1,8 +1,10 @@
 package com.example.chi_daram.controller;
 
+import com.example.chi_daram.dto.JwtResponse;
+import com.example.chi_daram.dto.LoginRequest;
 import com.example.chi_daram.dto.UserRegisterDTO;
-import com.example.chi_daram.dto.UserResponseDTO;
-import com.example.chi_daram.entity.User; // **مسیر ایمپورت User به entity تغییر کرد**
+//import com.example.chi_daram.dto.UserResponseDTO;
+import com.example.chi_daram.entity.User;
 import com.example.chi_daram.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,29 +48,38 @@ public class UserControllerIntegrationTest {
     void setUp() throws Exception {
         userRepository.deleteAll();
 
-        UserRegisterDTO registerDTO = new UserRegisterDTO("testuser_int", "password_int", "Integration Test User", "Desc");
+        // Updated UserRegisterDTO constructor to include phoneNumber
+        // Assuming a valid Iranian phone number for testing
+        UserRegisterDTO registerDTO = new UserRegisterDTO("testuser_int", "password_int", "Integration Test User", "Desc", "09121234567");
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDTO)))
                 .andExpect(status().isCreated());
 
-        UserRegisterDTO loginDTO = new UserRegisterDTO("testuser_int", "password_int", null, null);
+        // Use LoginRequest DTO for login
+        LoginRequest loginRequest = new LoginRequest("testuser_int", "password_int");
         MvcResult result = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginDTO)))
+                        .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String responseContent = result.getResponse().getContentAsString();
-        UserResponseDTO loginResponse = objectMapper.readValue(responseContent, UserResponseDTO.class);
-        jwtToken = loginResponse.getAccessToken();
+        // Changed to JwtResponse as AuthController returns JwtResponse for successful login
+        JwtResponse loginResponse = objectMapper.readValue(responseContent, JwtResponse.class);
+        jwtToken = loginResponse.getAccessToken(); // Get accessToken from JwtResponse
     }
 
     @Test
     void testGetAllUsers_Authenticated() throws Exception {
         Set<String> roles = new HashSet<>();
         roles.add("ROLE_USER");
-        userRepository.save(new User(null, "anotheruser", passwordEncoder.encode("pass"), "Another User", "Another Desc", roles, true));
+        // Updated User constructor to match the new full constructor in User.java
+        // User(Long id, String username, String password, String title, String description,
+        //      Set<String> roles, boolean enabled, String otpCode, LocalDateTime otpGeneratedTime,
+        //      boolean otpEnabledForLogin, String phoneNumber)
+        userRepository.save(new User(null, "anotheruser", passwordEncoder.encode("pass"), "Another User", "Another Desc",
+                                     roles, true, null, null, false, "09129876543")); // Line 78
 
         mockMvc.perform(get("/api/users")
                         .header("Authorization", "Bearer " + jwtToken)
@@ -93,7 +104,8 @@ public class UserControllerIntegrationTest {
     @Test
     void testUpdateUser_Authenticated() throws Exception {
         User existingUser = userRepository.findByUsername("testuser_int").orElseThrow();
-        UserRegisterDTO updateDTO = new UserRegisterDTO("updated_user_int", "new_password_int", "Updated Title", "Updated Desc");
+        // Updated UserRegisterDTO constructor to include phoneNumber
+        UserRegisterDTO updateDTO = new UserRegisterDTO("updated_user_int", "new_password_int", "Updated Title", "Updated Desc", "09123456789");
 
         mockMvc.perform(put("/api/users/" + existingUser.getId())
                         .header("Authorization", "Bearer " + jwtToken)

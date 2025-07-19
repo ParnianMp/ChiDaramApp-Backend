@@ -1,5 +1,6 @@
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\ChiDaramAppApplication.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\config\DatabaseConfig.java
+D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\config\RestTemplateConfig.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\config\SecurityConfig.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\controller\AuthController.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\controller\Categorylevel1Controller.java
@@ -27,6 +28,9 @@ D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\ItemDTO.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\ItemStatusDTO.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\JwtResponse.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\LoginRequest.java
+D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\OtpRequest.java
+D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\OtpResponse.java
+D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\OtpVerificationRequest.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\UserDTO.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\UserLoginDTO.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\UserRegisterDTO.java
@@ -92,10 +96,13 @@ D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\impl\Incre
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\impl\IncreasedocumenttypeServiceImpl.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\impl\ItemServiceImpl.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\impl\ItemStatusServiceImpl.java
+D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\impl\OtpServiceImpl.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\impl\UserServiceImpl.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\IncreasedocumentrowService.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\IncreasedocumentService.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\IncreasedocumenttypeService.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\ItemService.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\ItemStatusService.java
+D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\OtpService.java
+D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\SmsIrSmsService.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\service\UserService.java
