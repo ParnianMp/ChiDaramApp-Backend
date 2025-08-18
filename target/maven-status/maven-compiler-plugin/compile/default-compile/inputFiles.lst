@@ -35,6 +35,7 @@ D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\UserDTO.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\UserLoginDTO.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\UserRegisterDTO.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\UserResponseDTO.java
+D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\dto\UserUpdateDTO.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\entity\Categorylevel1.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\entity\Categorylevel2.java
 D:\ChiDaram App\chi_daram\src\main\java\com\example\chi_daram\entity\Decreasedocument.java

@@ -79,6 +79,7 @@ com\example\chi_daram\dto\DecreasedocumenttypeDTO.class
 com\example\chi_daram\controller\Categorylevel2Controller.class
 com\example\chi_daram\controller\IncreasedocumentController.class
 com\example\chi_daram\dto\JwtResponse.class
+com\example\chi_daram\dto\UserUpdateDTO.class
 com\example\chi_daram\config\RestTemplateConfig.class
 com\example\chi_daram\service\impl\ItemServiceImpl.class
 com\example\chi_daram\controller\UserController.class

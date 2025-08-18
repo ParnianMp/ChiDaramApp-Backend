@@ -10,4 +10,5 @@ public class ChiDaramAppApplication {
 		SpringApplication.run(ChiDaramAppApplication.class, args);
 	}
 
+
 }

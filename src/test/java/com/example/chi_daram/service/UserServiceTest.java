@@ -1,144 +1,154 @@
 package com.example.chi_daram.service;
 
-import com.example.chi_daram.dto.UserRegisterDTO;
-import com.example.chi_daram.dto.UserResponseDTO;
-import com.example.chi_daram.entity.User;
+import com.example.chi_daram.dto.*;
+//import com.example.chi_daram.entity.User;
 import com.example.chi_daram.repository.UserRepository;
-import com.example.chi_daram.exception.ResourceNotFoundException;
-import com.example.chi_daram.service.impl.UserServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
+//import com.example.chi_daram.service.SmsIrSmsService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.*;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@SpringBootTest
+@AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class UserControllerIntegrationTest {
 
-@ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+    @Autowired
+    private MockMvc mockMvc;
 
-    @Mock
+    @Autowired
     private UserRepository userRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    // Removed the KavenegarSmsService mock and injection as it's not part of UserServiceImpl
-    // @Mock
-    // private KavenegarSmsService smsService;
+    @MockBean
+    private SmsIrSmsService smsService; // Mock کردن سرویس SMS
 
-    @InjectMocks
-    private UserServiceImpl userService;
-
-    private User user;
-    private UserRegisterDTO userRegisterDTO;
+    private String jwtToken;
+    private Long createdUserId;
 
     @BeforeEach
-    void setUp() {
-        Set<String> roles = new HashSet<>();
-        roles.add("ROLE_USER");
+    void setUp() throws Exception {
+        userRepository.deleteAll();
 
-        // Updated User constructor to include phoneNumber and other OTP related fields (null/false for simplicity in test)
-        // User(Long id, String username, String password, String title, String description, Set<String> roles, boolean enabled, String otpCode, LocalDateTime otpGeneratedTime, boolean otpEnabledForLogin, String phoneNumber)
-        user = new User(1L, "testuser", "encodedPassword", "Test Title", "Test Desc", roles, true, null, null, false, "09123456789");
-        
-        // Updated UserRegisterDTO constructor to include phoneNumber
-        userRegisterDTO = new UserRegisterDTO("testuser", "password123", "Test Title", "Test Desc", "09123456789");
+        // جلوگیری از تماس واقعی به SMS.ir
+        Mockito.doNothing().when(smsService).sendSms(anyString(), anyString());
+
+        // ثبت‌نام کاربر تستی
+        UserRegisterDTO registerDTO = new UserRegisterDTO(
+                "testuser_int", "password_int", "Integration Test User", "Desc", "09121234567");
+
+        MvcResult registerResult = mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerDTO)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String registerResponseBody = registerResult.getResponse().getContentAsString();
+        UserResponseDTO registeredUser =
+                objectMapper.readValue(registerResponseBody, UserResponseDTO.class);
+        createdUserId = registeredUser.getId();
+        assertNotNull(createdUserId, "شناسه کاربر نباید null باشد");
+
+        // تلاش برای لاگین
+        LoginRequest loginRequest = new LoginRequest("testuser_int", "password_int");
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andReturn();
+
+        if (loginResult.getResponse().getStatus() == 403) {
+            String responseBody = loginResult.getResponse().getContentAsString();
+            assertTrue(responseBody.contains("OTP verification required"));
+
+            // درخواست OTP
+            mockMvc.perform(post("/api/auth/otp/request")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new OtpRequest(registerDTO.getUsername()))))
+                    .andExpect(status().isOk());
+
+            String otpCode = userRepository.findByUsername(registerDTO.getUsername())
+                    .orElseThrow(() -> new RuntimeException("کاربر یافت نشد"))
+                    .getOtpCode();
+            assertNotNull(otpCode, "OTP نباید null باشد");
+
+            // تأیید OTP
+            MvcResult otpVerifyResult = mockMvc.perform(post("/api/auth/otp/verify")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(
+                            new OtpVerificationRequest(registerDTO.getUsername(), otpCode))))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            JwtResponse jwtResponse =
+                    objectMapper.readValue(otpVerifyResult.getResponse().getContentAsString(), JwtResponse.class);
+            jwtToken = jwtResponse.getAccessToken();
+
+        } else if (loginResult.getResponse().getStatus() == 200) {
+            JwtResponse jwtResponse =
+                    objectMapper.readValue(loginResult.getResponse().getContentAsString(), JwtResponse.class);
+            jwtToken = jwtResponse.getAccessToken();
+        } else {
+            fail("وضعیت لاگین غیرمنتظره: " + loginResult.getResponse().getStatus());
+        }
+
+        assertNotNull(jwtToken, "JWT نباید null باشد");
     }
 
     @Test
-    void testGetAllUsers() {
-        when(userRepository.findAll()).thenReturn(Arrays.asList(user));
-
-        List<UserResponseDTO> users = userService.getAllUsers();
-
-        assertNotNull(users);
-        assertEquals(1, users.size());
-        assertEquals("testuser", users.get(0).getUsername());
-        verify(userRepository, times(1)).findAll();
+    @Order(1)
+    void testGetAllUsers() throws Exception {
+        mockMvc.perform(get("/api/users")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("testuser_int")));
     }
 
     @Test
-    void testGetUserById_Found() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-        UserResponseDTO foundUser = userService.getUserById(1L);
-
-        assertNotNull(foundUser);
-        assertEquals("testuser", foundUser.getUsername());
-        verify(userRepository, times(1)).findById(1L);
+    @Order(2)
+    void testGetUserById() throws Exception {
+        mockMvc.perform(get("/api/users/" + createdUserId)
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("testuser_int")));
     }
 
     @Test
-    void testGetUserById_NotFound() {
-        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+    @Order(3)
+    void testUpdateUser() throws Exception {
+        UserUpdateDTO updateDTO = new UserUpdateDTO("newuser", "newpassword", "New Title", "New Desc", "09124445566");
 
-        assertThrows(ResourceNotFoundException.class, () -> userService.getUserById(2L));
-        verify(userRepository, times(1)).findById(2L);
+        mockMvc.perform(put("/api/users/" + createdUserId)
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isOk())
+                // Assertions updated to validate the JSON response
+                .andExpect(jsonPath("$.id").value(createdUserId))
+                .andExpect(jsonPath("$.username").value("newuser"))
+                .andExpect(jsonPath("$.title").value("New Title"))
+                .andExpect(jsonPath("$.description").value("New Desc"));
     }
 
     @Test
-    void testRegisterNewUser() {
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.empty());
-        // Also mock findByPhoneNumber as registerNewUser now checks for it
-        when(userRepository.findByPhoneNumber("09123456789")).thenReturn(Optional.empty());
-        when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenReturn(user);
-
-        UserResponseDTO createdUser = userService.registerNewUser(userRegisterDTO);
-
-        assertNotNull(createdUser);
-        assertEquals("testuser", createdUser.getUsername());
-        verify(userRepository, times(1)).findByUsername("testuser");
-        verify(userRepository, times(1)).findByPhoneNumber("09123456789"); // Verify phone number check
-        verify(passwordEncoder, times(1)).encode("password123");
-        verify(userRepository, times(1)).save(any(User.class));
-    }
-
-    // Add more tests for updateUser, deleteUser, getUserByUsername if needed
-    @Test
-    void testUpdateUser() {
-        User existingUser = new User(1L, "olduser", "oldpassword", "Old Title", "Old Desc", new HashSet<>(Set.of("USER")), true, null, null, false, "09121112233");
-        UserRegisterDTO updateDTO = new UserRegisterDTO("newuser", "newpassword", "New Title", "New Desc", "09124445566");
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
-        when(userRepository.findByUsername("newuser")).thenReturn(Optional.empty());
-        when(userRepository.findByPhoneNumber("09124445566")).thenReturn(Optional.empty()); // Mock for phone number check
-        when(passwordEncoder.encode("newpassword")).thenReturn("encodedNewPassword");
-        when(userRepository.save(any(User.class))).thenReturn(user); // Mock to return the updated user
-
-        UserResponseDTO updatedUser = userService.updateUser(1L, updateDTO);
-
-        assertNotNull(updatedUser);
-        assertEquals("newuser", updatedUser.getUsername());
-        assertEquals("New Title", updatedUser.getTitle());
-        verify(userRepository, times(1)).findById(1L);
-        verify(userRepository, times(1)).findByUsername("newuser");
-        verify(userRepository, times(1)).findByPhoneNumber("09124445566");
-        verify(passwordEncoder, times(1)).encode("newpassword");
-        verify(userRepository, times(1)).save(any(User.class));
-    }
-
-    @Test
-    void testDeleteUser() {
-        User userToDelete = new User(1L, "userToDelete", "pass", "Title", "Desc", new HashSet<>(Set.of("USER")), true, null, null, false, "09127778899");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userToDelete));
-        doNothing().when(userRepository).delete(userToDelete);
-
-        userService.deleteUser(1L);
-
-        verify(userRepository, times(1)).findById(1L);
-        verify(userRepository, times(1)).delete(userToDelete);
+    @Order(4)
+    void testDeleteUser() throws Exception {
+        mockMvc.perform(delete("/api/users/" + createdUserId)
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNoContent());
+        assertFalse(userRepository.findById(createdUserId).isPresent());
     }
 }
