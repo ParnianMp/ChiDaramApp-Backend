@@ -25,4 +25,4 @@ COPY --from=build /app/target/chi_daram-0.0.1-SNAPSHOT.jar .
 EXPOSE 8081
 
 # Specify the command to run the application
-ENTRYPOINT ["java", "-Xmx300m", "-jar", "/app/chi_daram-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java","-Xms128m", "-Xmx300m", "-jar", "/app/chi_daram-0.0.1-SNAPSHOT.jar"]

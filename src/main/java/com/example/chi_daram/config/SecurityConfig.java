@@ -68,8 +68,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // مسیرهای احراز هویت (ثبت نام و ورود) عمومی هستند
                         .requestMatchers("/api/auth/**").permitAll()
-                       // برای تست فرانت
-                        .requestMatchers("/api/categorylevel1").permitAll()
 
                         // مسیرهای Swagger UI و API Docs عمومی هستند
                         .requestMatchers(

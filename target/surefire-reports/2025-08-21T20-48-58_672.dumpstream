@@ -1,0 +1,5 @@
+# Created at 2025-08-21T20:48:59.444
+Boot Manifest-JAR contains absolute paths in classpath 'D:\ChiDaram App\chi_daram\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+
